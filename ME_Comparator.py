@@ -1030,10 +1030,8 @@ st.header("Comparison Table")
 st.dataframe(df, height=full_height, use_container_width=True)
 
 # (Optional) Download HTML button for report
-def generate_html():
-    for adv in shown_advantages:
-        html += f"<li>{adv}</li>\n"
-    html += "</ul>\n"
+def generate_html(df, columns_to_show, selected_vendor):
+    html = f"<h1>ManageEngine vs {selected_vendor}</h1>\n"
     html += f"<h2>Comparison Table</h2>\n<table border='1'><tr>"
     for col in columns_to_show:
         html += f"<th>{col}</th>"
@@ -1050,4 +1048,6 @@ def get_download_link(text, filename):
     b64 = base64.b64encode(text.encode()).decode()
     return f'<a download="{filename}" href="data:text/html;base64,{b64}">Download Comparison Report</a>'
 
-st.markdown(get_download_link(generate_html(), f"ManageEngine_vs_{selected_vendor}.html"), unsafe_allow_html=True)
+st.markdown(get_download_link(
+    generate_html(df, columns_to_show, selected_vendor),
+    f"ManageEngine_vs_{selected_vendor}.html"), unsafe_allow_html=True)
