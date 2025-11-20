@@ -1016,22 +1016,28 @@ else:
     st.write("No clear advantages found.")
 
 # --- Table: Show full view, no scrolling ---
-table = [
-    {
-        feature_col: row.get(feature_col, ""),
-        desc_col: row.get(desc_col, ""),
-        "ManageEngine": row.get(me_col, ""),
-        selected_vendor: row.get(selected_vendor, "")
-    }
-    for row in dataset
+# ---- Dynamic 5-column table block ----
+
+other_vendors = [v for v in competitors if v != selected_vendor]
+if other_vendors:
+    fifth_col = other_vendors[0]  # First non-selected competitor
+else:
+    fifth_col = competitors[0]
+
+columns_to_show = [
+    feature_col,
+    desc_col,
+    me_col,
+    selected_vendor,
+    fifth_col
 ]
 
-df = pd.DataFrame(table)
-row_height = 35  # pixels per row, adjust as needed
-full_height = max(600, row_height * (len(df) + 3))
-
+df = pd.DataFrame(dataset)[columns_to_show]
+row_height = 35
+full_height = row_height * (len(df) + 3)
 st.header("Comparison Table")
 st.dataframe(df, height=full_height, use_container_width=True)
+
 
 # ---- (Optional) Download HTML button ----
 def generate_html():
