@@ -1037,6 +1037,6 @@ def generate_html():
 import base64
 def get_download_link(text, filename):
     b64 = base64.b64encode(text.encode()).decode()
-    return f'<a download="{filename}" href="data:text/html;base64,{b64}">Download HTML Report</a>'
+    return f'<a download="{filename}" href="data:text/html;base64,{b64}">Download Comparison Report</a>'
 
 st.markdown(get_download_link(generate_html(), f"ManageEngine_vs_{selected_vendor}.html"), unsafe_allow_html=True)
