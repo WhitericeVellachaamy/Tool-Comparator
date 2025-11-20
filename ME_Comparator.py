@@ -1016,11 +1016,20 @@ columns_to_show = [
     me_col,
     selected_vendor
 ]
-df = pd.DataFrame(dataset)[columns_to_show]
+
+# Ensure only relevant and non-empty rows are used
+filtered_dataset = [
+    row for row in dataset
+    if row.get(feature_col) and row.get(desc_col)
+]
+
+df = pd.DataFrame(filtered_dataset)[columns_to_show]
 row_height = 35
-full_height = row_height * (len(df) + 3)
+full_height = row_height * len(df)   # No +3, prevents extra empty rows
+
 st.header("Comparison Table")
 st.dataframe(df, height=full_height, use_container_width=True)
+
 
 # (Optional) Download HTML button for report
 def generate_html():
