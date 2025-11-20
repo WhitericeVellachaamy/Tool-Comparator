@@ -1011,25 +1011,24 @@ else:
 
 # -------- Table: Only 4 columns, all rows, no scrolls --------
 columns_to_show = [
-    feature_col,
-    desc_col,
-    me_col,
-    selected_vendor
+    "Feature / Capability",
+    "Description",
+    "Endpoint Central Malware Protection",
+    selected_vendor  # this selects your vendor column dynamically
 ]
 
-# Ensure only relevant and non-empty rows are used
+# Filter out any rows missing the feature or description to prevent blank rows
 filtered_dataset = [
     row for row in dataset
-    if row.get(feature_col) and row.get(desc_col)
+    if row.get("Feature / Capability") and row.get("Description")
 ]
 
 df = pd.DataFrame(filtered_dataset)[columns_to_show]
 row_height = 35
-full_height = row_height * len(df)   # No +3, prevents extra empty rows
+full_height = row_height * len(df)
 
 st.header("Comparison Table")
 st.dataframe(df, height=full_height, use_container_width=True)
-
 
 # (Optional) Download HTML button for report
 def generate_html():
