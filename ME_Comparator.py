@@ -1031,8 +1031,6 @@ st.dataframe(df, height=full_height, use_container_width=True)
 
 # (Optional) Download HTML button for report
 def generate_html():
-    html = f"<h1>ManageEngine vs {selected_vendor}</h1>\n"
-    html += "<h2>TL;DR — How ManageEngine is better</h2>\n<ul>"
     for adv in shown_advantages:
         html += f"<li>{adv}</li>\n"
     html += "</ul>\n"
