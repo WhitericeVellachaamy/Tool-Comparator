@@ -984,7 +984,7 @@ desc_col = "Description"
 me_col = "Endpoint Central Malware Protection"
 competitors = [k for k in dataset[0] if k not in [feature_col, desc_col, me_col]]
 
-st.title("ManageEngine Comparator")
+st.title("Endpoint Central Malware Protection | Tool Comparator")
 
 # Select competitor
 selected_vendor = st.selectbox("Compare ManageEngine with:", competitors)
@@ -1024,7 +1024,6 @@ st.dataframe(df)
 # (Optional) Download HTML button
 def generate_html():
     html = f"<h1>ManageEngine vs {selected_vendor}</h1>\n"
-    html += "<h2>TL;DR — How ManageEngine is better</h2>\n<ul>"
     for adv in advantages:
         html += f"<li>{adv}</li>\n"
     html += "</ul>\n"
