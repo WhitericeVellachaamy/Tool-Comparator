@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+import random
+import base64
 
 # == Paste your dataset here ========
 dataset = [
-   {
+    {
                 "Feature / Capability": "AI/ML powered antimalware detection",
                 "Description": "Uses AI and ML to detect malware",
                 "Endpoint Central Malware Protection": "✅",
@@ -974,7 +976,6 @@ dataset = [
 ]
 # ===================================
 
-# Figure out the competitor columns (dynamically)
 if not dataset:
     st.error("No data provided.")
     st.stop()
@@ -989,42 +990,54 @@ st.title("Endpoint Central Malware Protection | Tool Comparator")
 # Select competitor
 selected_vendor = st.selectbox("Compare ManageEngine with:", competitors)
 
-# TL;DR logic
 def is_yes(value):
     if not value:
         return False
     return str(value).strip() in ['✅', '✔', '✓', 'Yes', 'TRUE', '1']
 
-advantages = []
-for row in dataset:
-    if is_yes(row.get(me_col)) and not is_yes(row.get(selected_vendor)):
-        advantages.append(f"**{row[feature_col]}**: {row.get(desc_col,'')}")
+# --- TL;DR Section: show 3–5 points (randomly) ---
+all_advantages = [
+    f"**{row[feature_col]}**: {row.get(desc_col,'')}"
+    for row in dataset
+    if is_yes(row.get(me_col)) and not is_yes(row.get(selected_vendor))
+]
+
+if all_advantages:
+    show_count = min(len(all_advantages), random.choice([3, 4, 5]))
+    shown_advantages = random.sample(all_advantages, show_count)
+else:
+    shown_advantages = []
 
 st.header("TL;DR — How ManageEngine is better")
-if advantages:
-    for adv in advantages:
+if shown_advantages:
+    for adv in shown_advantages:
         st.markdown(f"- {adv}")
 else:
     st.write("No clear advantages found.")
 
-# Table
-st.header("Comparison Table")
-
-table = []
-for row in dataset:
-    table.append({
+# --- Table: Show full view, no scrolling ---
+table = [
+    {
         feature_col: row.get(feature_col, ""),
         desc_col: row.get(desc_col, ""),
         "ManageEngine": row.get(me_col, ""),
         selected_vendor: row.get(selected_vendor, "")
-    })
-df = pd.DataFrame(table)
-st.dataframe(df)
+    }
+    for row in dataset
+]
 
-# (Optional) Download HTML button
+df = pd.DataFrame(table)
+row_height = 35  # pixels per row, adjust as needed
+full_height = max(600, row_height * (len(df) + 3))
+
+st.header("Comparison Table")
+st.dataframe(df, height=full_height, use_container_width=True)
+
+# ---- (Optional) Download HTML button ----
 def generate_html():
     html = f"<h1>ManageEngine vs {selected_vendor}</h1>\n"
-    for adv in advantages:
+    html += "<h2>TL;DR — How ManageEngine is better</h2>\n<ul>"
+    for adv in shown_advantages:
         html += f"<li>{adv}</li>\n"
     html += "</ul>\n"
     html += "<h2>Comparison Table</h2>\n<table border='1' cellpadding='5' cellspacing='0'>"
@@ -1034,7 +1047,6 @@ def generate_html():
     html += "</table>"
     return html
 
-import base64
 def get_download_link(text, filename):
     b64 = base64.b64encode(text.encode()).decode()
     return f'<a download="{filename}" href="data:text/html;base64,{b64}">Download Comparison Report</a>'
