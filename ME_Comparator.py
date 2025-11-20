@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+import random
+import base64
 
-# == Paste your dataset here ========
+# ===== Paste your dataset here =====
 dataset = [
-   {
+    {
                 "Feature / Capability": "AI/ML powered antimalware detection",
                 "Description": "Uses AI and ML to detect malware",
                 "Endpoint Central Malware Protection": "✅",
@@ -974,11 +976,6 @@ dataset = [
 ]
 # ===================================
 
-# Figure out the competitor columns (dynamically)
-if not dataset:
-    st.error("No data provided.")
-    st.stop()
-
 feature_col = "Feature / Capability"
 desc_col = "Description"
 me_col = "Endpoint Central Malware Protection"
@@ -986,55 +983,64 @@ competitors = [k for k in dataset[0] if k not in [feature_col, desc_col, me_col]
 
 st.title("Endpoint Central Malware Protection | Tool Comparator")
 
-# Select competitor
 selected_vendor = st.selectbox("Compare ManageEngine with:", competitors)
 
-# TL;DR logic
 def is_yes(value):
     if not value:
         return False
     return str(value).strip() in ['✅', '✔', '✓', 'Yes', 'TRUE', '1']
 
-advantages = []
-for row in dataset:
-    if is_yes(row.get(me_col)) and not is_yes(row.get(selected_vendor)):
-        advantages.append(f"**{row[feature_col]}**: {row.get(desc_col,'')}")
+# -------- TL;DR Section: Show 3–5 random advantages --------
+all_advantages = [
+    f"**{row[feature_col]}**: {row.get(desc_col,'')}"
+    for row in dataset
+    if is_yes(row.get(me_col)) and not is_yes(row.get(selected_vendor))
+]
+if all_advantages:
+    show_count = min(len(all_advantages), random.choice([3, 4, 5]))
+    shown_advantages = random.sample(all_advantages, show_count)
+else:
+    shown_advantages = []
 
 st.header("TL;DR — How ManageEngine is better")
-if advantages:
-    for adv in advantages:
+if shown_advantages:
+    for adv in shown_advantages:
         st.markdown(f"- {adv}")
 else:
     st.write("No clear advantages found.")
 
-# Table
+# -------- Table: Only 4 columns, all rows, no scrolls --------
+columns_to_show = [
+    feature_col,
+    desc_col,
+    me_col,
+    selected_vendor
+]
+df = pd.DataFrame(dataset)[columns_to_show]
+row_height = 35
+full_height = row_height * (len(df) + 3)
 st.header("Comparison Table")
+st.dataframe(df, height=full_height, use_container_width=True)
 
-table = []
-for row in dataset:
-    table.append({
-        feature_col: row.get(feature_col, ""),
-        desc_col: row.get(desc_col, ""),
-        "ManageEngine": row.get(me_col, ""),
-        selected_vendor: row.get(selected_vendor, "")
-    })
-df = pd.DataFrame(table)
-st.dataframe(df)
-
-# (Optional) Download HTML button
+# (Optional) Download HTML button for report
 def generate_html():
     html = f"<h1>ManageEngine vs {selected_vendor}</h1>\n"
-    for adv in advantages:
+    html += "<h2>TL;DR — How ManageEngine is better</h2>\n<ul>"
+    for adv in shown_advantages:
         html += f"<li>{adv}</li>\n"
     html += "</ul>\n"
-    html += "<h2>Comparison Table</h2>\n<table border='1' cellpadding='5' cellspacing='0'>"
-    html += f"<tr><th>Feature / Capability</th><th>Description</th><th>ManageEngine</th><th>{selected_vendor}</th></tr>"
-    for row in table:
-        html += f"<tr><td>{row[feature_col]}</td><td>{row[desc_col]}</td><td>{row['ManageEngine']}</td><td>{row[selected_vendor]}</td></tr>"
+    html += f"<h2>Comparison Table</h2>\n<table border='1'><tr>"
+    for col in columns_to_show:
+        html += f"<th>{col}</th>"
+    html += "</tr>"
+    for idx, row in df.iterrows():
+        html += "<tr>"
+        for col in columns_to_show:
+            html += f"<td>{row[col]}</td>"
+        html += "</tr>"
     html += "</table>"
     return html
 
-import base64
 def get_download_link(text, filename):
     b64 = base64.b64encode(text.encode()).decode()
     return f'<a download="{filename}" href="data:text/html;base64,{b64}">Download Comparison Report</a>'
