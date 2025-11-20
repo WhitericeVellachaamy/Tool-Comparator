@@ -1012,7 +1012,6 @@ else:
 # -------- Table: Only 4 columns, all rows, no scrolls --------
 columns_to_show = [
     "Feature / Capability",
-    "Description",
     "Endpoint Central Malware Protection",
     selected_vendor  # this selects your vendor column dynamically
 ]
